@@ -2,6 +2,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <iostream>
 
 
 #include "scanner.hh"
@@ -23,7 +24,14 @@ extern YYLTYPE yylloc; // Used for position information, see below.
 /* If you want to include any flex declarations, this is where to do it. */
 
 %x c_comment
-DIGIT [0-9]
+%x diesel_comment
+DIGIT	[0-9]
+INTEGER	[0-9]+
+FLOATSIMPLE 	({INTEGER}(\.){INTEGER}|{INTEGER}*(\.){INTEGER}|{INTEGER}(\.){INTEGER}*)
+FLOAT	({FLOATSIMPLE}|({FLOATSIMPLE}|{INTEGER})[eE][+-]?{INTEGER})
+
+
+
 /* {DIGIT}+"."{DIGIT}*
  ID [a-z][a-z0-9]* */
 
@@ -310,15 +318,40 @@ procedure                {
                          }
 }
 
-[0-9]+                   {
+"{"                      {
+                            column += yyleng;
+                            BEGIN(diesel_comment);
+                         }
+                         
+             
+<diesel_comment>
+{
+    "}"                  {
+                            column += 1;
+                            BEGIN(INITIAL);
+                         }
+                         
+    "{"                  {
+                            column += 1;
+                            yyerror("Suspicious comment");
+                         }
+    [^\n]                column++; /* Skip stuff in comments */
+    \n                   column = 0;
+    <<EOF>>              {
+                            yyerror("Unterminated comment");
+                            yyterminate();
+                         }
+}
+
+{INTEGER}             {
                             yylloc.first_line = yylineno;
                             yylloc.first_column = column;
                             column += yyleng;
 			    			yylval.ival = atoi(yytext);
                             return T_INTNUM;
-}
+					}
  
-((\.)[0-9]+|[0-9]+(\.)*)[+-]*([Ee][+-]?[0-9]+|[0-9]*) {
+{FLOAT}					{
                             yylloc.first_line = yylineno;
                             yylloc.first_column = column;
                             column += yyleng;
@@ -336,13 +369,27 @@ procedure                {
 }
 
 
-'[^'\n]*'           {
+'(''|[^'\n])*'          {
                             yylloc.first_line = yylineno;
                             yylloc.first_column = column;
                             column += yyleng;
 			    yylval.str = sym_tab->pool_install(sym_tab->fix_string(yytext));
 			    return T_STRINGCONST;
 }
+'(''|[^'\n])*\n         {
+			    yylloc.first_line = yylineno;
+			    yylloc.first_column = column;
+                            column = 0;
+			    yyerror("Newline in string");
+                         }
 
+\n                       {
+                            column = 0;
+                         }
+                         
+[ \t]+                    {
+                            column += yyleng;
+                         }
 <<EOF>>                  yyterminate();
 .                        yyerror("Illegal character");
+						std::cout<<"column "<column<<std::endl;
