@@ -544,11 +544,14 @@ sym_index symbol_table::close_scope()
 	sym_index curr = current_environment();
 		//for every symbol in the current block
 	  for(sym_index sym_ind = sym_pos; sym_ind > curr; sym_ind--){
+		 //get the back link for every symbol in this block
 	    hash_index hash_ind = sym_table[sym_ind]->back_link;
-	    //if the hash table points to the symbol
+	    //if the back_link points to the symbol
 	    if(hash_table[hash_ind] == sym_ind){
 	    	//let it point to what the symbol points to with its hash link
 	      hash_table[hash_ind] = sym_table[sym_ind]->hash_link;
+	      //without this the hashlinks of the last symbols in the printout were incorrent
+	      sym_table[sym_ind]->hash_link = NULL_SYM;
 	    }
 	  }
 	  //decrease block level
@@ -964,6 +967,7 @@ sym_index symbol_table::enter_function(position_information *pos,
 sym_index symbol_table::enter_procedure(position_information *pos,
                                         const pool_index pool_p)
 {
+	//just like in enter_function?
 	  sym_index sym_p = install_symbol(pool_p, SYM_PROC);
 	  procedure_symbol *proc = sym_table[sym_p]->get_procedure_symbol();
 
@@ -974,7 +978,7 @@ sym_index symbol_table::enter_procedure(position_information *pos,
 
 	  proc->tag = SYM_PROC;
 	  proc->last_parameter = NULL;
-	  proc->type = void_type;
+	  proc->type=void_type;
 	  proc->ar_size = 0;
 	  proc->label_nr = get_next_label();
 
