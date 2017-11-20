@@ -193,7 +193,12 @@ prog_head       : T_PROGRAM T_IDENT
 
 
 const_part      : T_CONST const_decls
-                | error const_decls
+                | error const_decls{
+                //ERROR HANDLING
+                position_information* pos = new position_information(@1.first_line,@1.first_column);
+                                        type_error(pos) << "not declared "
+                                            << "constant: "
+                                            << yytext << endl << flush;}
                 | /* empty */
                 ;
 
@@ -497,9 +502,12 @@ opt_param_list  : T_LEFTPAR param_list T_RIGHTPAR
                     /* Remove ( and ) */
 		  			$$ = $2;
                 }
+//ERROR HANDLING
                 | T_LEFTPAR error T_RIGHTPAR
                 {
-                    $$ = NULL;
+					position_information* pos = new position_information(@1.first_line,@1.first_column);
+					type_error(pos) << "Error in param list: "<< yytext << endl << flush;
+					
                 }
                 | /* empty */
                 {
@@ -567,6 +575,15 @@ stmt_list       : stmt
 		    			$$ = new ast_stmt_list(pos, $3, $1);
                 	}
                 }
+                
+               | stmt_list error stmt
+                {
+                //ERROR HANDLING
+                	//get position
+					position_information* pos =	new position_information(@1.first_line,@1.first_column);
+					                        error($1->pos) << "Forgot semicolon? "
+                                            << yytext << endl << flush;
+                }
                 ;
 
 
@@ -576,6 +593,14 @@ stmt            : T_IF expr T_THEN stmt_list elsif_list else_part T_END
 					position_information* pos =	new position_information(@1.first_line,@1.first_column);
 					$$ = new ast_if(pos, $2, $4, $5, $6);
                 }
+                | T_IF expr error stmt_list elsif_list else_part T_END
+                {
+					position_information* pos =	new position_information(@1.first_line,@1.first_column);
+					error(pos)<<"no then after if "<<yytext << flush;
+					$$=NULL;
+					
+                }
+                
                 | T_WHILE expr T_DO stmt_list T_END
                 {
 					position_information* pos =	new position_information(@1.first_line,@1.first_column);
@@ -601,6 +626,7 @@ stmt            : T_IF expr T_THEN stmt_list elsif_list else_part T_END
 					position_information* pos =	new position_information(@1.first_line,@1.first_column);
 					$$ = new ast_return(pos);
                 }
+
                 
                 | /* empty */
                 {
@@ -633,6 +659,12 @@ rvariable       : rvar_id
                 {
 					position_information *pos =new position_information(@1.first_line,@1.first_column);
 					$$ = new ast_indexed(pos, $1, $3);
+                }
+                | array_id T_LEFTBRACKET error T_RIGHTBRACKET
+                {
+                //ERROR HANDLING
+					position_information *pos =new position_information(@1.first_line,@1.first_column);
+					error(pos) << "Empty array indexing "<< yytext << endl << flush;
                 }
                 
                 ;
@@ -817,7 +849,6 @@ func_call       : func_id T_LEFTPAR opt_expr_list T_RIGHTPAR
 					position_information* pos =	new position_information(@1.first_line,@1.first_column);
 					$$ = new ast_functioncall(pos, $1, $3);
                 }
-                |
                 
                 ;
 
