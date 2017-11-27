@@ -38,16 +38,16 @@ bool semantic::chk_param(ast_id *env, parameter_symbol *formals,
 	if (formals == NULL && actuals == NULL) {
 		return true;
 	} else if (formals != NULL && actuals == NULL) {
-		type_error(env->pos) << "Missing parameters to function" << endl;
+		type_error(env->pos) << "More formal than actual parameters." << endl;
 		return false;
 	} else if (formals == NULL && actuals != NULL) {
-		type_error(actuals->pos) << "Parameters does not match for this function"
+		type_error(actuals->pos) << "More actual than formal parameters."
 				<< endl;
 		return false;
 	}
 
 	if (formals->type != actuals->last_expr->type_check()) {
-		type_error(actuals->pos) << "Parameter type error" << endl;
+		type_error(actuals->pos) << "Type discrepancy between formal and actual parameters." << endl;
 		return false;
 	} else {
 		return true && chk_param(env, formals->preceding, actuals->preceding);
@@ -306,7 +306,7 @@ sym_index ast_assign::type_check() {
 		rhs = real_cast;
 		right_type = real_type;
 	} else if (left_type == integer_type && right_type == real_type) {
-		type_error(rhs->pos) << "Right and left value none compatible" << endl;
+		type_error(rhs->pos) << "Can't assign a real value to an integer variable." << endl;
 	}
 
 	return void_type;

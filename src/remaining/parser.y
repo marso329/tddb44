@@ -917,8 +917,11 @@ lvar_id         : id
                         type_error($1->pos) << "not declared "
                                             << "as variable or parameter: "
                                             << yytext << endl << flush;
+                      $$=NULL;
                     }
+                    else{
                     $$ = $1;
+                    }
                 }
                 ;
 rvar_id         : id
@@ -994,11 +997,14 @@ id              : T_IDENT
                     if (sym_p == NULL_SYM) {
                         type_error(pos) << "not declared: "
                                         << yytext << endl << flush;
+                            $$=NULL;
                     }
+                    else{
                     // Create a new ast_id node with pos, symptr.
                     $$ = new ast_id(pos,
                                     sym_p);
                     $$->type = sym_tab->get_symbol_type(sym_p);
+                }
                 }
                 ;
 

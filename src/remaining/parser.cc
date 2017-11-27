@@ -560,7 +560,7 @@ static const yytype_uint16 yyrline[] =
      704,   709,   715,   720,   728,   732,   737,   742,   747,   755,
      759,   763,   768,   773,   778,   786,   790,   795,   800,   805,
      810,   818,   822,   826,   830,   834,   839,   847,   856,   869,
-     882,   897,   911,   924,   941,   955,   969,   983
+     882,   897,   911,   927,   944,   958,   972,   986
 };
 #endif
 
@@ -2542,14 +2542,17 @@ yyreduce:
                         type_error((yyvsp[0].id)->pos) << "not declared "
                                             << "as variable or parameter: "
                                             << yytext << endl << flush;
+                      (yyval.id)=NULL;
                     }
+                    else{
                     (yyval.id) = (yyvsp[0].id);
+                    }
                 }
-#line 2549 "parser.cc" /* yacc.c:1646  */
+#line 2552 "parser.cc" /* yacc.c:1646  */
     break;
 
   case 93:
-#line 925 "parser.y" /* yacc.c:1646  */
+#line 928 "parser.y" /* yacc.c:1646  */
     {
                     // Make sure this id is really declared as an rvariable.
                     // debug() << "rvar_id -> id: " << $1->sym_p << endl;
@@ -2563,11 +2566,11 @@ yyreduce:
                     }
                     (yyval.id) = (yyvsp[0].id);
                 }
-#line 2567 "parser.cc" /* yacc.c:1646  */
+#line 2570 "parser.cc" /* yacc.c:1646  */
     break;
 
   case 94:
-#line 942 "parser.y" /* yacc.c:1646  */
+#line 945 "parser.y" /* yacc.c:1646  */
     {
                     // Make sure this id is really declared as a procedure.
                     // debug() << "proc_id -> id: " << $1->sym_p << endl;
@@ -2578,11 +2581,11 @@ yyreduce:
                     }
                     (yyval.id) = (yyvsp[0].id);
                 }
-#line 2582 "parser.cc" /* yacc.c:1646  */
+#line 2585 "parser.cc" /* yacc.c:1646  */
     break;
 
   case 95:
-#line 956 "parser.y" /* yacc.c:1646  */
+#line 959 "parser.y" /* yacc.c:1646  */
     {
                     // Make sure this id is really declared as a function.
                     // debug() << "func_id -> id: " << $1->sym_p << endl;
@@ -2593,11 +2596,11 @@ yyreduce:
                     }
                     (yyval.id) = (yyvsp[0].id);
                 }
-#line 2597 "parser.cc" /* yacc.c:1646  */
+#line 2600 "parser.cc" /* yacc.c:1646  */
     break;
 
   case 96:
-#line 970 "parser.y" /* yacc.c:1646  */
+#line 973 "parser.y" /* yacc.c:1646  */
     {
                     // Make sure this id is really declared as an array.
                     // debug() << "array_id -> id: " << $1->sym_p << endl;
@@ -2608,11 +2611,11 @@ yyreduce:
                     }
                     (yyval.id) = (yyvsp[0].id);
                 }
-#line 2612 "parser.cc" /* yacc.c:1646  */
+#line 2615 "parser.cc" /* yacc.c:1646  */
     break;
 
   case 97:
-#line 984 "parser.y" /* yacc.c:1646  */
+#line 987 "parser.y" /* yacc.c:1646  */
     {
                     sym_index sym_p;    // Used to find previous use of symbol.
                     position_information *pos =
@@ -2626,17 +2629,20 @@ yyreduce:
                     if (sym_p == NULL_SYM) {
                         type_error(pos) << "not declared: "
                                         << yytext << endl << flush;
+                            (yyval.id)=NULL;
                     }
+                    else{
                     // Create a new ast_id node with pos, symptr.
                     (yyval.id) = new ast_id(pos,
                                     sym_p);
                     (yyval.id)->type = sym_tab->get_symbol_type(sym_p);
                 }
-#line 2636 "parser.cc" /* yacc.c:1646  */
+                }
+#line 2642 "parser.cc" /* yacc.c:1646  */
     break;
 
 
-#line 2640 "parser.cc" /* yacc.c:1646  */
+#line 2646 "parser.cc" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -2871,5 +2877,5 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 1006 "parser.y" /* yacc.c:1906  */
+#line 1012 "parser.y" /* yacc.c:1906  */
 
