@@ -2,6 +2,7 @@
 #define __OPTIMIZE_HH__
 
 #include "ast.hh"
+#include <vector>
 
 
 /*** This class performs AST optimisation. Currently it only implements a
