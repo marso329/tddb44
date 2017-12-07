@@ -310,6 +310,7 @@ sym_index ast_procedurecall::generate_quads(quad_list &q) {
 
 /* Generate quads for a function call. */
 sym_index ast_functioncall::generate_quads(quad_list &q) {
+
 	sym_index return_value = sym_tab->gen_temp_var(type);
 	int nr_params = 0;
 	parameter_symbol* last_param =
@@ -404,16 +405,16 @@ sym_index ast_return::generate_quads(quad_list &q) {
 /* Generate quads for an array reference. */
 sym_index ast_indexed::generate_quads(quad_list &q) {
 	sym_index index_pos = index->generate_quads(q);
-	sym_index address = 0;
+	sym_index adr = 0;
 
 	if (id->type == integer_type) {
-		address = sym_tab->gen_temp_var(integer_type);
-		q += new quadruple(q_irindex, id->sym_p, index_pos, address);
+		adr = sym_tab->gen_temp_var(integer_type);
+		q += new quadruple(q_irindex, id->sym_p, index_pos, adr);
 	} else {
-		address = sym_tab->gen_temp_var(real_type);
-		q += new quadruple(q_rrindex, id->sym_p, index_pos, address);
+		adr = sym_tab->gen_temp_var(real_type);
+		q += new quadruple(q_rrindex, id->sym_p, index_pos, adr);
 	}
-	return address;
+	return adr;
 }
 
 /* Generate quads for a list of statements. Note that this is not necessarily

@@ -1,6 +1,5 @@
 Symbol table will be printed after compilation.
 A quad list will be printed for each block.
-No assembler code will be generated.
 
 Quad list for "FOO"
     1    q_itor     I          -          $1         
@@ -43,6 +42,7 @@ Quad list for "FOO"
    37    q_ireturn  5          I          -          
    38    q_labl     5          -          -          
 
+Generating assembler for function "FOO"
 
 Quad list for global level
     1    q_iload    2          -          $19        
@@ -78,8 +78,9 @@ Quad list for global level
    31    q_param    $42        -          -          
    32    q_call     FOO        2          $40        
    33    q_iassign  $40        -          I          
-   34    q_labl     11         -          -          
+   34    q_labl     19         -          -          
 
+Generating assembler, global level
 7GLOBAL.4VOID7INTEGER4REAL4READ5WRITE7INT-ARG5TRUNC8REAL-ARG8QUADTEST4SIZE1A4SIZE7INTEGER1I7INTEGER1X4REAL3FOO1I7INTEGER1X4REAL7INTEGER1I1X1I1I1X1X1I1X1I1I1I1I1X1X5WRITE1I2$12$22$32$42$52$62$72$82$93$103$113$123$133$143$153$163$173$181A1A1A1A1X1I5TRUNC1X1X1I3FOO1I1X3$193$203$213$223$233$243$253$263$273$283$293$303$313$323$333$343$353$363$373$383$393$403$413$42
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------^ (pool_pos = 362)
 
@@ -145,3 +146,4 @@ Pos  Name      Lev Hash Back Offs Type      Tag
  56: $40         1   -1    8  264 INTEGER   SYM_VAR       
  57: $41         1   -1    9  272 INTEGER   SYM_VAR       
  58: $42         1   -1   10  280 INTEGER   SYM_VAR       
+gcc: error: diesel_rts.o: No such file or directory
