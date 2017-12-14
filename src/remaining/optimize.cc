@@ -316,9 +316,10 @@ void ast_if::optimize() {
 }
 
 void ast_return::optimize() {
-	if (optimizer->is_binop(value)) {
-		value = optimizer->fold_constants(value);
-	}
+	if(this->value != NULL){
+		this->value->optimize();
+		this->value = optimizer->fold_constants(this->value);
+}
 }
 
 void ast_functioncall::optimize() {

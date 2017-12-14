@@ -109,8 +109,6 @@ void code_generator::prologue(symbol *new_env) {
 	out << "\t\t" << "mov" << "\t" << "rbp, rcx" << endl;
 	//set the size of the stack for the next frame
 	out << "\t\t" << "sub" << "\t" << "rsp, " << ar_size << endl;
-
-	out << flush;
 }
 
 /* This method generates assembler code for leaving a procedure or function. */
@@ -139,7 +137,7 @@ void code_generator::find(sym_index sym_p, int *level, int *offset) {
  * Generates code for getting the address of a frame for the specified scope level.
  */
 void code_generator::frame_address(int level, const register_type dest) {
-	out << "\t\t" << "mov" << "\t" << reg[dest] << ", " << "[rdp-"
+	out << "\t\t" << "mov" << "\t" << reg[dest] << ", " << "[rbp-"
 			<< level * STACK_WIDTH << "]" << "\t" << endl;
 }
 
@@ -149,7 +147,7 @@ void code_generator::fetch(sym_index sym_p, register_type dest) {
 
 	//get symbol
 	symbol* s = sym_tab->get_symbol(sym_p);
-
+	if(s == NULL) return;
 	//if it is a const we simply load it into the register
 	if (s->tag == SYM_CONST) {
 		constant_symbol* cons = s->get_constant_symbol();
@@ -163,7 +161,7 @@ void code_generator::fetch(sym_index sym_p, register_type dest) {
 		frame_address(level, RCX);
 
 		//load the value into the register
-		out << "\t\t" << reg[dest] << ", [" << "rcx+" << offset * STACK_WIDTH
+		out << "\t\t" << "mov" << "\t" << reg[dest] << ", [" << "rcx+" << offset * STACK_WIDTH
 				<< "]" << endl;
 	}
 }
@@ -227,8 +225,16 @@ void code_generator::store_float(sym_index sym_p) {
 	find(sym_p, &level, &offset);
 	frame_address(level, RCX);
 	//normal Store Floating Point Value
-	out << "\t\t" << "fstp" << "\t" << "qword ptr [" << reg[RCX] << offset
-			<< "]\n";
+	if (offset >= 0) {
+		out << "\t\t" << "fstp" << "\t" << "qword ptr [" << reg[RCX] << "+"<<offset
+				<< "]\n";
+	}
+
+	else {
+		out << "\t\t" << "fstp" << "\t" << "qword ptr [" << reg[RCX] << offset
+				<< "]\n";
+	}
+
 }
 
 /* This function fetches the base address of an array. */
@@ -593,12 +599,31 @@ void code_generator::expand(quad_list *q_list) {
 			break;
 
 		case q_param:
-			/* Your code here */
-			break;
+	           fetch(q->sym1, RAX);
+	            out << "\t\t" << "push" << "\t" << "rax" << endl;
+	            break;
 
 		case q_call: {
-			/* Your code here */
-			break;
+            symbol *sym = sym_tab->get_symbol(q->sym1);
+
+            switch (sym->tag) {
+            case SYM_PROC: {
+                procedure_symbol *p_sym = sym->get_procedure_symbol();
+                out << "\t\t" << "call" << "\t" << "L" << p_sym->label_nr << "\t # " << sym_tab->pool_lookup(p_sym->id) << endl;
+                break;
+            }
+            case SYM_FUNC: {
+                function_symbol *f_sym = sym->get_function_symbol();
+                out << "\t\t" << "call" << "\t" << "L" << f_sym->label_nr << "\t # " << sym_tab->pool_lookup(f_sym->id) << endl;
+                store(RAX, q->sym3);
+                break;
+            }
+            default:
+                break;
+            }
+
+            out << "\t\t" << "add" << "\t" << "rsp, " << q->sym2*STACK_WIDTH << endl;
+            break;
 		}
 		case q_rreturn:
 		case q_ireturn:

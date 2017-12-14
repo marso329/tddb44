@@ -1,93 +1,149 @@
-L4:			# FOO
-		fild	qword ptr [rcx+0]
+L3:			# FOO
+		push	rbp
+		mov	rcx, rsp
+		push	rcx
+		mov	rbp, rcx
+		sub	rsp, 192
+		mov	rax, 3
+		mov	rcx, [rbp-8]	
+		mov	[rcx+32], rax
+		mov	rcx, [rbp-8]	
+		mov	rax, [rcx+256]
+		mov	rcx, [rbp-8]	
+		mov	[rcx+0], rax
+		mov	rax, 1
+		mov	rcx, [rbp-8]	
+		mov	[rcx+40], rax
+		mov	rcx, [rbp-8]	
+		mov	rax, [rcx+0]
+		mov	rcx, [rbp-8]	
+		mov	rcx, [rcx+320]
+		add	rax, rcx
+		mov	rcx, [rbp-8]	
+		mov	[rcx+48], rax
+		mov	rcx, [rbp-8]	
+		mov	rax, [rcx+384]
+		mov	rcx, [rbp-8]	
+		mov	[rcx+8], rax
+		mov	rax, 7
+		mov	rcx, [rbp-8]	
+		mov	[rcx+56], rax
+		mov	rcx, [rbp-8]	
+		mov	rax, [rcx+448]
+		mov	rcx, [rbp-8]	
+		mov	[rcx+16], rax
+		mov	rax, 1
+		mov	rcx, [rbp-8]	
+		mov	[rcx+64], rax
+		mov	rcx, [rbp-8]	
+		fild	qword ptr [rcx+64]
+		mov	rcx, [rbp-8]	
+		fstp	qword ptr [rcx+72]
+		mov	rcx, [rbp-8]	
+		fld	qword ptr [rcx+16]
+		mov	rcx, [rbp-8]	
+		fld	qword ptr [rcx+72]
+		faddp
+		mov	rcx, [rbp-8]	
+		fstp	qword ptr [rcx+80]
+		mov	rcx, [rbp-8]	
+		mov	rax, [rcx+640]
+		mov	rcx, [rbp-8]	
+		mov	[rcx+24], rax
+		mov	rax, -1
+		mov	rcx, [rbp-8]	
+		mov	[rcx+88], rax
+		mov	rax, 4
+		mov	rcx, [rbp-8]	
+		mov	[rcx+96], rax
+		mov	rcx, [rbp-8]	
+		mov	rax, [rcx+704]
+		mov	rcx, [rbp-8]	
+		mov	rcx, [rcx+768]
+		cmp	rax, rcx
+		jl	L9
+		mov	rax, 0
+		jmp	L10
+		L9:
+		mov	rax, 1
+		L10:
+		mov	rcx, [rbp-8]	
+		mov	[rcx+104], rax
+		mov	rcx, [rbp-8]	
+		mov	rax, [rcx+832]
+		cmp	rax, 0
+		je	L5
+		mov	rax, 5
+		mov	rcx, [rbp-8]	
+		mov	[rcx+112], rax
+		mov	rcx, [rbp-8]	
+		mov	rax, [rcx+64]
+		mov	rcx, [rbp-8]	
+		mov	rcx, [rcx+896]
+		add	rax, rcx
+		mov	rcx, [rbp-8]	
+		mov	[rcx+120], rax
+		mov	rcx, [rbp-8]	
+		mov	rax, [rcx+960]
+		mov	rcx, [rbp-8]	
+		mov	[rcx+0], rax
+		jmp	L6
+L5:
+L6:
+		mov	rax, 1
+		mov	rcx, [rbp-8]	
+		mov	[rcx+128], rax
+		mov	rax, 1
+		mov	rcx, [rbp-8]	
+		mov	[rcx+136], rax
+		mov	rcx, [rbp-8]	
+		mov	rax, [rcx+1088]
+		neg	rax
+		mov	rcx, [rbp-8]	
+		mov	[rcx+144], rax
+		mov	rcx, [rbp-8]	
+		fild	qword ptr [rcx+144]
+		mov	rcx, [rbp-8]	
+		fstp	qword ptr [rcx+152]
+		mov	rcx, [rbp-8]	
+		fld	qword ptr [rcx+152]
+		mov	rcx, [rbp-8]	
+		fld	qword ptr [rcx+128]
 		fcomip	ST(0), ST(1)
 		fstp	ST(0)
-		jb	L11
+		ja	L11
 		mov	rax, 0
 		jmp	L12
 		L11:
 		mov	rax, 1
 		L12:
+		mov	rcx, [rbp-8]	
+		mov	[rcx+160], rax
+		mov	rcx, [rbp-8]	
+		mov	rax, [rcx+1280]
 		cmp	rax, 0
-		je	L6
+		je	L7
 		mov	rax, 1
-		add	rax, rcx
-		mov	rax, 1
-		fild	qword ptr [rcx+0]
-		fsubp
-		jmp	L7
-L6:
-		fild	qword ptr [rcx+0]
-		fcomip	ST(0), ST(1)
-		fstp	ST(0)
-		jne	L13
-		mov	rax, 0
-		jmp	L14
-		L13:
-		mov	rax, 1
-		L14:
-		cmp	rax, 0
-		je	L15
-		mov	rax, 0
-		jmp	L16
-		L15:
-		mov	rax, 1
-		L16:
-		cmp	rax, 0
-		je	L8
-		jmp	L7
-L8:
-		mov	rax, 0
-		cmp	rax, rcx
-		jne	L17
-		mov	rax, 0
-		jmp	L18
-		L17:
-		mov	rax, 1
-		L18:
-		cmp	rax, 0
-		je	L9
-		neg	rax
-		jmp	L10
-L9:
-		mov	rax, 7
-L10:
-		mov	rax, 1
-		fild	qword ptr [rcx+0]
+		mov	rcx, [rbp-8]	
+		mov	[rcx+168], rax
+		mov	rcx, [rbp-8]	
+		fild	qword ptr [rcx+168]
+		mov	rcx, [rbp-8]	
+		fstp	qword ptr [rcx+176]
+		mov	rcx, [rbp-8]	
+		fld	qword ptr [rcx+24]
+		mov	rcx, [rbp-8]	
+		fld	qword ptr [rcx+176]
 		faddp
-		mov	rax, 33
+		mov	rcx, [rbp-8]	
+		fstp	qword ptr [rcx+184]
+		mov	rcx, [rbp-8]	
+		mov	rax, [rcx+1472]
+		mov	rcx, [rbp-8]	
+		mov	[rcx+24], rax
+		jmp	L8
 L7:
-		jmp	L5
-L5:
-L3:			# QUADTEST
-		mov	rax, 2
-		mov	rax, 1
-		imul	rcx, 8
-		sub	rax, rcx
-		mov	[rcx], rax
-		mov	rax, 1
-		imul	rcx, 8
-		sub	rax, rcx
-		mov	rax, [rax]
-		mov	rax, 1
-		imul	rcx, 8
-		sub	rax, rcx
-		mov	rax, [rax]
-		mov	rax, 1
-		sub	rax, rcx
-		imul	rcx, 8
-		sub	rax, rcx
-		mov	[rcx], rax
-		mov	rax, 3
-		fild	qword ptr [rcx+0]
-		mov	rax, 4
-		fild	qword ptr [rcx+0]
-		mov	rax, 4
-		fild	qword ptr [rcx+0]
-		mov	rax, 2
-		fild	qword ptr [rcx+0]
-		fdivp
-		faddp
-		mov	rax, 3
-		imul	rax, rcx
-L19:
+L8:
+L4:
+		leave
+		ret
