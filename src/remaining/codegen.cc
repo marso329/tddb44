@@ -129,8 +129,11 @@ void code_generator::epilogue(symbol *old_env) {
 void code_generator::find(sym_index sym_p, int *level, int *offset) {
 	symbol *sym = sym_tab->get_symbol(sym_p);
 	*level = sym->level;
-	//unsure about this
-	*offset = sym->offset;
+	if (sym->tag == SYM_VAR || sym->tag == SYM_ARRAY) {
+		*offset = -((*level + 1) * STACK_WIDTH + sym->offset);
+	} else if (sym->tag == SYM_PARAM) {
+		*offset = STACK_WIDTH + sym->offset + sym->get_parameter_symbol()->size;
+	}
 }
 
 /*
@@ -138,7 +141,7 @@ void code_generator::find(sym_index sym_p, int *level, int *offset) {
  */
 void code_generator::frame_address(int level, const register_type dest) {
 	out << "\t\t" << "mov" << "\t" << reg[dest] << ", " << "[rbp-"
-			<< level * STACK_WIDTH << "]" << "\t" << endl;
+			<< level * STACK_WIDTH << "]" << endl;
 }
 
 /* This function fetches the value of a variable or a constant into a
@@ -147,7 +150,9 @@ void code_generator::fetch(sym_index sym_p, register_type dest) {
 
 	//get symbol
 	symbol* s = sym_tab->get_symbol(sym_p);
-	if(s == NULL) return;
+	if (s == NULL) {
+		return;
+	}
 	//if it is a const we simply load it into the register
 	if (s->tag == SYM_CONST) {
 		constant_symbol* cons = s->get_constant_symbol();
@@ -161,8 +166,13 @@ void code_generator::fetch(sym_index sym_p, register_type dest) {
 		frame_address(level, RCX);
 
 		//load the value into the register
-		out << "\t\t" << "mov" << "\t" << reg[dest] << ", [" << "rcx+" << offset * STACK_WIDTH
-				<< "]" << endl;
+		if (offset >= 0) {
+			out << "\t\t" << "mov" << "\t" << reg[dest] << ", [" << reg[RCX]
+					<< "+" << offset << "]" << endl;
+		} else {
+			out << "\t\t" << "mov" << "\t" << reg[dest] << ", [" << "rcx"
+					<< offset << "]" << endl;
+		}
 	}
 }
 
@@ -177,7 +187,7 @@ void code_generator::fetch_float(sym_index sym_p) {
 
 	//normal load floating point
 	if (sym->tag == SYM_PARAM || sym->tag == SYM_ARRAY || sym->tag == SYM_VAR) {
-		if (offset > 0) {
+		if (offset >= 0) {
 			out << "\t\t" << "fld" << "\t" << "qword ptr [" << reg[RCX] << "+"
 					<< offset << "]\n";
 		} else {
@@ -226,8 +236,8 @@ void code_generator::store_float(sym_index sym_p) {
 	frame_address(level, RCX);
 	//normal Store Floating Point Value
 	if (offset >= 0) {
-		out << "\t\t" << "fstp" << "\t" << "qword ptr [" << reg[RCX] << "+"<<offset
-				<< "]\n";
+		out << "\t\t" << "fstp" << "\t" << "qword ptr [" << reg[RCX] << "+"
+				<< offset << "]\n";
 	}
 
 	else {
@@ -260,7 +270,7 @@ void code_generator::expand(quad_list *q_list) {
 // We use this iterator to loop through the quad list.
 	quad_list_iterator *ql_iterator = new quad_list_iterator(q_list);
 
-	quadruple *q = ql_iterator->get_current(); // This is the head of the list.
+	quadruple *q = ql_iterator->get_current();  // This is the head of the list.
 
 	while (q != NULL) {
 		quad_nr++;
@@ -599,31 +609,26 @@ void code_generator::expand(quad_list *q_list) {
 			break;
 
 		case q_param:
-	           fetch(q->sym1, RAX);
-	            out << "\t\t" << "push" << "\t" << "rax" << endl;
-	            break;
+			fetch(q->sym1, RAX);
+			out << "\t\t" << "push" << "\t" << "rax" << endl;
+			break;
 
 		case q_call: {
-            symbol *sym = sym_tab->get_symbol(q->sym1);
+			symbol *sym = sym_tab->get_symbol(q->sym1);
 
-            switch (sym->tag) {
-            case SYM_PROC: {
-                procedure_symbol *p_sym = sym->get_procedure_symbol();
-                out << "\t\t" << "call" << "\t" << "L" << p_sym->label_nr << "\t # " << sym_tab->pool_lookup(p_sym->id) << endl;
-                break;
-            }
-            case SYM_FUNC: {
-                function_symbol *f_sym = sym->get_function_symbol();
-                out << "\t\t" << "call" << "\t" << "L" << f_sym->label_nr << "\t # " << sym_tab->pool_lookup(f_sym->id) << endl;
-                store(RAX, q->sym3);
-                break;
-            }
-            default:
-                break;
-            }
-
-            out << "\t\t" << "add" << "\t" << "rsp, " << q->sym2*STACK_WIDTH << endl;
-            break;
+			if (sym->tag == SYM_PROC) {
+				procedure_symbol *p_sym = sym->get_procedure_symbol();
+				out << "\t\t" << "call" << "\t" << "L" << p_sym->label_nr
+						<< "\t # " << sym_tab->pool_lookup(p_sym->id) << endl;
+			} else if (sym->tag == SYM_FUNC) {
+				function_symbol *f_sym = sym->get_function_symbol();
+				out << "\t\t" << "call" << "\t" << "L" << f_sym->label_nr
+						<< "\t # " << sym_tab->pool_lookup(f_sym->id) << endl;
+				store(RAX, q->sym3);
+			}
+			out << "\t\t" << "add" << "\t" << "rsp, " << q->sym2 * STACK_WIDTH
+					<< endl;
+			break;
 		}
 		case q_rreturn:
 		case q_ireturn:
@@ -651,7 +656,7 @@ void code_generator::expand(quad_list *q_list) {
 
 		case q_itor: {
 			block_level level;      // Current scope level.
-			int offset;             // Offset within current activation record.
+			int offset;      // Offset within current activation record.
 
 			find(q->sym1, &level, &offset);
 			frame_address(level, RCX);
