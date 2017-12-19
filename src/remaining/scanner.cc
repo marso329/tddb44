@@ -1417,7 +1417,7 @@ YY_RULE_SETUP
                             yylloc.first_line = yylineno;
                             yylloc.first_column = column;
                             column += yyleng;
-			    			yylval.ival = atoi(yytext);
+			    			yylval.ival = std::stol(yytext);
                             return T_INTNUM;
 					}
 	YY_BREAK
@@ -1428,7 +1428,7 @@ YY_RULE_SETUP
                             yylloc.first_line = yylineno;
                             yylloc.first_column = column;
                             column += yyleng;
-			    			yylval.rval = atof(yytext);
+			    			yylval.rval = std::stod(yytext);
                             return T_REALNUM;
 }
 	YY_BREAK

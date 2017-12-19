@@ -1,3 +1,4 @@
+program math;
 function abs(x : real) : real;
 begin
     if (x < 0) then

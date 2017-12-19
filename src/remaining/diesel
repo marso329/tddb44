@@ -140,7 +140,6 @@ EOL
     code=$?
     rm "$tmpfile"
 else
-    echo $cpp_flags $source | tail -n+$cpp_ignore | ./compiler $compiler_flags
     cpp $cpp_flags $source | tail -n+$cpp_ignore | ./compiler $compiler_flags
     code=$?
 fi

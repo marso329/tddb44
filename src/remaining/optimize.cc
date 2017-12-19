@@ -113,12 +113,16 @@ void ast_indexed::optimize() {
  binary operations. It returns either the resulting optimized node or the
  original node if no optimization could be performed. */
 ast_expression *ast_optimizer::fold_constants(ast_expression *node) {
+	if(!(node->tag==AST_ADD||node->tag==AST_SUB||node->tag==AST_OR||node->tag==AST_AND||node->tag==AST_MULT||node->tag==AST_DIVIDE||node->tag==AST_IDIV||node->tag==AST_MOD)){
+		return node;
+	}
+
 	//get operation
 	ast_binaryoperation* binop = node->get_ast_binaryoperation();
 
 	//Optimize left node though recursion
 	if (is_binop(binop->left)) {
-		binop->left = fold_constants(binop->left);
+		binop->left = 	(binop->left);
 	}
 	//Optimize right node though recursion
 	if (is_binop(binop->right)) {
